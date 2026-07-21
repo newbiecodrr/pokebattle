@@ -1,17 +1,43 @@
-import { Button } from "@/components/ui/button"
+import { useEffect } from "react";
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { Navbar } from "@/components/Navbar";
+import Landing from "@/pages/Landing";
+import Select from "@/pages/Select";
+import Battle from "@/pages/Battle";
+
+// 1. Import the Provider you just built
+import { GameProvider } from "@/context/GameContext";
+
+const RootLayout = () => {
+  return (
+    <div className="dark min-h-screen bg-background text-foreground selection:bg-primary/30">
+      <Navbar />
+      <main className="container mx-auto px-4 py-8">
+        <Outlet />
+      </main>
+    </div>
+  );
+};
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RootLayout />,
+    children: [
+      { path: "/", element: <Landing /> },
+      { path: "/select", element: <Select /> },
+      { path: "/battle", element: <Battle /> },
+    ],
+  },
+]);
 
 function App() {
   return (
-    <div className="dark">
-      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-        <div className="flex flex-col items-center gap-6 p-8 border border-border rounded-xl shadow-2xl bg-card backdrop-blur-md">
-          <h1 className="text-3xl font-bold tracking-tight">Pokebattle System Online</h1>
-          <p className="text-muted-foreground">Tailwind v4 and Shadcn UI are fully operational.</p>
-          <Button variant="default">Initialize Sequence</Button>
-        </div>
-      </div>
-    </div>
-  )
+    // 2. Wrap the RouterProvider inside the GameProvider
+    <GameProvider>
+      <RouterProvider router={router} />
+    </GameProvider>
+  );
 }
 
-export default App
+export default App;
