@@ -1,17 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
-/**
- * ============================================================================
- * GAME CONTEXT & LOCALSTORAGE PERSISTENCE (Phase 12 & Phase 27)
- * ============================================================================
- * Architectural Principle: Centralized State Management with Persistence
- * 
- * Why GameContext exists:
- * 1. Enables cross-page routing sharing (Selected Pokémon from /select to /battle).
- * 2. Manages persistent Web Storage (LocalStorage) for win streaks & player settings.
- * 3. Prevents prop drilling across nested layout and arena components.
- */
-
+// Global Game State (shares selected pokemon & persists win streak in localStorage)
 const GameContext = createContext(null);
 
 const STORAGE_KEYS = {
@@ -25,7 +14,7 @@ export function GameProvider({ children }) {
   const [playerPokemon, setPlayerPokemon] = useState(null);
   const [cpuPokemon, setCpuPokemon] = useState(null);
 
-  // Persistent Win Streaks (Phase 27: LocalStorage Web Storage API)
+  // LocalStorage se streaks load karo
   const [winStreak, setWinStreak] = useState(() => {
     try {
       return parseInt(localStorage.getItem(STORAGE_KEYS.CURRENT_STREAK) || "0", 10);
@@ -59,7 +48,7 @@ export function GameProvider({ children }) {
     }
   });
 
-  // Sync streaks to LocalStorage
+  // LocalStorage sync
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEYS.CURRENT_STREAK, winStreak.toString());
@@ -71,7 +60,7 @@ export function GameProvider({ children }) {
     }
   }, [winStreak, bestStreak, totalBattles, soundEnabled]);
 
-  // Record a victorious match
+  // match jeetne par streak increment
   const recordWin = () => {
     setWinStreak((prev) => {
       const nextStreak = prev + 1;
@@ -81,18 +70,16 @@ export function GameProvider({ children }) {
     setTotalBattles((prev) => prev + 1);
   };
 
-  // Record a defeat match
+  // match haarne par current streak reset
   const recordLoss = () => {
     setWinStreak(0);
     setTotalBattles((prev) => prev + 1);
   };
 
-  // Toggle audio effects
   const toggleSound = () => {
     setSoundEnabled((prev) => !prev);
   };
 
-  // Clear selections for fresh match
   const resetMatch = () => {
     setPlayerPokemon(null);
     setCpuPokemon(null);

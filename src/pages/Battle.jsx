@@ -24,12 +24,11 @@ export default function Battle() {
     soundEnabled,
   } = useGame();
 
-  // Yahan useRef use kar rahe hain jo basically C++ ke raw pointer ya reference jaisa behave karta hai
-  // Agar pure Pokemon object ko useState me daalte to har frame pe re-render hota aur memory overhead badhta
+  // Pokemon battle instance pointers (keeps object references stable during turns)
   const playerRef = useRef(null);
   const cpuRef = useRef(null);
 
-  // Simple state variables taaki jab HP/Energy change ho to React sirf specific bars ko repaint kare
+  // HP and stamina bars state
   const [playerHp, setPlayerHp] = useState(100);
   const [playerEnergy, setPlayerEnergy] = useState(50);
   const [playerDefending, setPlayerDefending] = useState(false);
@@ -38,7 +37,7 @@ export default function Battle() {
   const [cpuEnergy, setCpuEnergy] = useState(50);
   const [cpuDefending, setCpuDefending] = useState(false);
 
-  const [turn, setTurn] = useState("player"); // 'player' | 'cpu' - turn state machine
+  const [turn, setTurn] = useState("player");
   const [turnCount, setTurnCount] = useState(1);
   const [totalPlayerDamage, setTotalPlayerDamage] = useState(0);
 
@@ -46,7 +45,7 @@ export default function Battle() {
   const [isGameOver, setIsGameOver] = useState(false);
   const [isWinner, setIsWinner] = useState(false);
 
-  // Animations ke liye state flags
+  // Combat animation flags
   const [playerLunge, setPlayerLunge] = useState(false);
   const [cpuLunge, setCpuLunge] = useState(false);
   const [playerHit, setPlayerHit] = useState(false);
@@ -55,16 +54,16 @@ export default function Battle() {
   const [playerFaint, setPlayerFaint] = useState(false);
   const [cpuFaint, setCpuFaint] = useState(false);
 
-  // RPG style damage numbers floating animation
+  // Floating damage number popup data
   const [playerDamageEvent, setPlayerDamageEvent] = useState(null);
   const [cpuDamageEvent, setCpuDamageEvent] = useState(null);
 
-  // Battle initialize karne ka function (Rematch ke time pe bhi call hota hai)
+  // Battle reset and setup logic (match start & rematch)
   const initializeBattle = useCallback(() => {
     let p = playerPokemon;
     let c = cpuPokemon;
 
-    // Agar user direct /battle link khole bina select kare to default fallback set karo
+    // agar user ne direct URL khol li bina roster select kiye toh fallback default load karo
     if (!p && roster.length > 0) {
       p = roster[0].clone();
       setPlayerPokemon(p);
@@ -75,13 +74,12 @@ export default function Battle() {
     }
 
     if (p && c) {
-      // C++ me deep copy banane jaisa clone kar rahe hain taaki original roster clean rahe
+      // fresh clones taaki original roster ke stats modify na ho
       const pClone = p.clone();
       const cClone = c.clone();
       pClone.reset();
       cClone.reset();
 
-      // Ref pointers assign kar rahe hain
       playerRef.current = pClone;
       cpuRef.current = cClone;
 
@@ -115,7 +113,7 @@ export default function Battle() {
     initializeBattle();
   }, [initializeBattle]);
 
-  // Ref se latest values nikal kar React state me sync karne ka helper
+  // Ref objects se updated HP/Energy React UI states me sync karna
   const syncGameState = () => {
     if (playerRef.current && cpuRef.current) {
       setPlayerHp(playerRef.current.currentHp);
@@ -128,12 +126,13 @@ export default function Battle() {
     }
   };
 
+  // Heavy attack or critical hit pe screen shake trigger
   const triggerScreenShake = (isHeavy = false) => {
     setScreenShake(true);
     setTimeout(() => setScreenShake(false), isHeavy ? 400 : 250);
   };
 
-  // Player jab koi move click karta hai ya 1-4 key dabata hai
+  // User action handler (Weak attack, Heavy attack, Guard, Charge)
   const handlePlayerAction = (actionType) => {
     if (turn !== "player" || isGameOver || !playerRef.current || !cpuRef.current) return;
 
@@ -149,11 +148,10 @@ export default function Battle() {
 
       if (soundEnabled) SoundEngine.playWeakHit();
 
-      // CPU pe hit flash trigger karo
+      // CPU hit reaction and damage popup
       setCpuHit(true);
       setTimeout(() => setCpuHit(false), 350);
 
-      // Floating damage number show karo CPU ke upar
       setCpuDamageEvent({
         value: result.damage,
         isCrit: result.isCrit,
@@ -165,7 +163,7 @@ export default function Battle() {
 
       if (result.isCrit) triggerScreenShake(false);
     } else if (actionType === "strong") {
-      if (player.energy < player.strongCost) return;
+      if (player.energy < player.strongCost) return; // energy nahi hai toh attack cancel
 
       setPlayerLunge(true);
       setTimeout(() => setPlayerLunge(false), 450);
@@ -209,7 +207,7 @@ export default function Battle() {
     if (result) {
       syncGameState();
 
-      // Battle feed log me message append karo
+      // Combat feed log me message append karo
       setBattleLogs((prev) => [
         ...prev,
         {
@@ -221,7 +219,7 @@ export default function Battle() {
         },
       ]);
 
-      // Check karo agar CPU mar gaya to victory screen mount karo
+      // Check karo agar CPU faint ho gaya toh match finish
       if (cpu.isFainted()) {
         setCpuFaint(true);
         setTimeout(() => {
@@ -231,18 +229,18 @@ export default function Battle() {
           if (soundEnabled) SoundEngine.playVictory();
         }, 800);
       } else {
-        setTurn("cpu"); // Turn CPU ko pass karo
+        setTurn("cpu"); // pass turn to AI
       }
     }
   };
 
-  // CPU Turn handler - AI side effect loop
+  // CPU AI turn loop with a natural thinking delay
   useEffect(() => {
     if (turn === "cpu" && !isGameOver && playerRef.current && cpuRef.current) {
       const cpu = cpuRef.current;
       const player = playerRef.current;
 
-      // 1.1 second ka artificial delay taaki lage CPU soch raha hai (like sleep() in C++)
+      // 1.1s natural pause taaki turn automatic na lage
       const cpuTimer = setTimeout(() => {
         const chosenAction = cpu.getComputerMove(player);
         let result = null;
@@ -317,7 +315,7 @@ export default function Battle() {
             },
           ]);
 
-          // Agar player fainted ho gaya to defeat screen trigger karo
+          // Agar player ki health 0 ho gayi toh defeat modal khol do
           if (player.isFainted()) {
             setPlayerFaint(true);
             setTimeout(() => {
@@ -333,11 +331,11 @@ export default function Battle() {
         }
       }, 1100);
 
-      return () => clearTimeout(cpuTimer); // C++ destructor jaisa cleanup taaki timer leak na ho
+      return () => clearTimeout(cpuTimer);
     }
   }, [turn, isGameOver, turnCount, soundEnabled, playerDefending, recordLoss, recordWin]);
 
-  // Keyboard shortcut listener (Keys 1 to 4)
+  // Keyboard number shortcuts (1-4 keys for quick actions)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (turn !== "player" || isGameOver) return;
@@ -367,7 +365,7 @@ export default function Battle() {
   return (
     <div className={`py-1 sm:py-4 max-w-6xl mx-auto flex flex-col min-h-[calc(100vh-6.5rem)] justify-between ${screenShake ? "animate-shake" : ""}`}>
       
-      {/* Top Status Bar */}
+      {/* Arena header: return button + turn status indicator */}
       <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/10 mb-3">
         <button
           onClick={() => navigate("/select")}
@@ -376,7 +374,6 @@ export default function Battle() {
           <ArrowLeft className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Change </span>Roster
         </button>
 
-        {/* Turn Status */}
         <div className="flex items-center gap-1 sm:gap-2">
           {turn === "player" ? (
             <div className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[11px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 animate-pulse">
@@ -394,10 +391,10 @@ export default function Battle() {
         </div>
       </div>
 
-      {/* Battle Arena Cards */}
+      {/* Main combat pods layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 lg:gap-8 my-auto items-center">
         
-        {/* PLAYER POD */}
+        {/* Player Side (Left Pod) */}
         <div className="glass-panel p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden border border-white/15 flex flex-col justify-between">
           <div
             className="absolute -top-10 -left-10 w-36 sm:w-48 h-36 sm:h-48 rounded-full blur-3xl opacity-25"
@@ -437,23 +434,22 @@ export default function Battle() {
             />
           </div>
 
-          {/* Sprite Platform */}
           <div className="relative h-28 sm:h-44 flex items-center justify-center">
             <DamageNumber event={playerDamageEvent} />
             <div className="absolute bottom-1 w-28 sm:w-36 h-6 bg-black/50 rounded-full blur-md" />
             <img
-              src={playerObj.backSprite || playerObj.sprite}
+              src={playerObj.sprite}
               alt={playerObj.name}
               className={`relative max-h-24 sm:max-h-36 object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.7)] transition-transform ${
                 playerLunge ? "animate-lunge-player" : ""
-              } ${playerHit ? "animate-hit-flash" : ""} ${
-                playerFaint ? "animate-faint" : "animate-idle"
+              } ${playerHit ? "animate-hit-player" : ""} ${
+                playerFaint ? "animate-faint-player" : "animate-idle-player"
               }`}
             />
           </div>
         </div>
 
-        {/* CPU POD */}
+        {/* CPU Side (Right Pod) */}
         <div className="glass-panel p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden border border-white/15 flex flex-col justify-between">
           <div
             className="absolute -top-10 -right-10 w-36 sm:w-48 h-36 sm:h-48 rounded-full blur-3xl opacity-25"
@@ -493,7 +489,6 @@ export default function Battle() {
             />
           </div>
 
-          {/* Sprite Platform */}
           <div className="relative h-28 sm:h-44 flex items-center justify-center">
             <DamageNumber event={cpuDamageEvent} />
             <div className="absolute bottom-1 w-28 sm:w-36 h-6 bg-black/50 rounded-full blur-md" />
@@ -511,13 +506,12 @@ export default function Battle() {
 
       </div>
 
-      {/* Action Buttons & Battle Log */}
+      {/* 4 Action Command Buttons + Live Event Battle Feed */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-5 mt-3 sm:mt-5">
         
-        {/* 4 Combat Buttons */}
         <div className="lg:col-span-7 grid grid-cols-2 gap-2 sm:gap-3">
           
-          {/* Button 1: Weak Attack */}
+          {/* Move 1: Weak Strike */}
           <button
             type="button"
             disabled={turn !== "player" || isGameOver}
@@ -539,7 +533,7 @@ export default function Battle() {
             </div>
           </button>
 
-          {/* Button 2: Strong Attack */}
+          {/* Move 2: Heavy Blast */}
           <button
             type="button"
             disabled={!canUseStrong}
@@ -567,7 +561,7 @@ export default function Battle() {
             </div>
           </button>
 
-          {/* Button 3: Defend */}
+          {/* Move 3: Defensive Guard */}
           <button
             type="button"
             disabled={turn !== "player" || isGameOver}
@@ -589,7 +583,7 @@ export default function Battle() {
             </div>
           </button>
 
-          {/* Button 4: Charge Energy */}
+          {/* Move 4: Energy Charge */}
           <button
             type="button"
             disabled={turn !== "player" || isGameOver}
@@ -613,14 +607,12 @@ export default function Battle() {
 
         </div>
 
-        {/* Combat Feed Log */}
         <div className="lg:col-span-5">
           <BattleLog logs={battleLogs} />
         </div>
 
       </div>
 
-      {/* Game Over Modal */}
       {isGameOver && (
         <GameOverModal
           isWinner={isWinner}

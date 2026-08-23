@@ -172,6 +172,7 @@
   90% { transform: translate(2px, -1px) rotate(0deg); }
 }
 
+/* CPU / Right-side Animations (Normal Orientation) */
 @keyframes hitFlashAnimation {
   0%, 100% { filter: brightness(1) drop-shadow(0 0 0 transparent); }
   25% { filter: brightness(3.5) contrast(1.5) drop-shadow(0 0 20px rgba(239, 68, 68, 0.9)); transform: scale(0.95); }
@@ -199,14 +200,14 @@
 }
 
 @keyframes lungePlayer {
-  0% { transform: translate(0, 0) scale(1); }
-  35% { transform: translate(50px, -20px) scale(1.1); }
-  100% { transform: translate(0, 0) scale(1); }
+  0% { transform: scaleX(-1) translate(0, 0); }
+  35% { transform: scaleX(-1) translate(-45px, -15px) scale(1.1); }
+  100% { transform: scaleX(-1) translate(0, 0); }
 }
 
 @keyframes lungeCpu {
   0% { transform: translate(0, 0) scale(1); }
-  35% { transform: translate(-50px, 20px) scale(1.1); }
+  35% { transform: translate(-45px, 15px) scale(1.1); }
   100% { transform: translate(0, 0) scale(1); }
 }
 
@@ -221,12 +222,35 @@
   50% { transform: translateY(-6px); }
 }
 
+/* Player / Left-side Animations (Flipped Facing Right towards Opponent) */
+@keyframes idleBreathingPlayer {
+  0%, 100% { transform: scaleX(-1) translateY(0px); }
+  50% { transform: scaleX(-1) translateY(-6px); }
+}
+
+@keyframes hitFlashPlayerAnimation {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 0 transparent); transform: scaleX(-1); }
+  25% { filter: brightness(3.5) contrast(1.5) drop-shadow(0 0 20px rgba(239, 68, 68, 0.9)); transform: scaleX(-1) scale(0.95); }
+  50% { filter: brightness(0.6) drop-shadow(0 0 10px rgba(239, 68, 68, 0.5)); transform: scaleX(-1) scale(1.05); }
+  75% { filter: brightness(1.8); transform: scaleX(-1); }
+}
+
+@keyframes faintPlayerAnimation {
+  0% { transform: scaleX(-1) translateY(0) scale(1); opacity: 1; filter: grayscale(0); }
+  40% { transform: scaleX(-1) translateY(-10px) scale(0.95); opacity: 0.8; filter: grayscale(0.5); }
+  100% { transform: scaleX(-1) translateY(40px) scale(0.7); opacity: 0; filter: grayscale(1) blur(4px); }
+}
+
 .animate-shake {
   animation: shakeAnimation 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
 .animate-hit-flash {
   animation: hitFlashAnimation 0.4s ease-in-out both;
+}
+
+.animate-hit-player {
+  animation: hitFlashPlayerAnimation 0.4s ease-in-out both;
 }
 
 .animate-damage-float {
@@ -245,8 +269,16 @@
   animation: faintAnimation 1s ease-in forwards;
 }
 
+.animate-faint-player {
+  animation: faintPlayerAnimation 1s ease-in forwards;
+}
+
 .animate-idle {
   animation: idleBreathing 3s ease-in-out infinite;
+}
+
+.animate-idle-player {
+  animation: idleBreathingPlayer 3s ease-in-out infinite;
 }
 
 /* Custom Scrollbar for Battle Log */

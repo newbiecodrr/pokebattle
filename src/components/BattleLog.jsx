@@ -1,23 +1,15 @@
 import { useEffect, useRef } from "react";
-import { ScrollText, Flame, Shield, Zap, Sparkles } from "lucide-react";
-
-/**
- * ============================================================================
- * BATTLE LOG COMPONENT (Phase 23)
- * ============================================================================
- * Concepts:
- * - DOM Manipulation in React (Auto-scroll using useRef + scrollIntoView)
- * - Visual log tagging based on event types (Crits, Defends, Charges, Attacks)
- */
+import { ScrollText, Flame, Shield, Zap } from "lucide-react";
 
 export default function BattleLog({ logs = [] }) {
   const scrollBottomRef = useRef(null);
 
-  // Auto-scroll to latest log message whenever logs array changes
+  // new event log aane par auto-scroll to bottom
   useEffect(() => {
     scrollBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
 
+  // Action type badge tags
   const getLogBadge = (log) => {
     if (log.isCrit) {
       return (
@@ -49,8 +41,6 @@ export default function BattleLog({ logs = [] }) {
 
   return (
     <div className="glass-panel rounded-2xl p-4 flex flex-col h-56 sm:h-64 border border-white/10">
-      
-      {/* Header */}
       <div className="flex items-center justify-between pb-3 mb-2 border-b border-white/10">
         <div className="flex items-center gap-2 text-zinc-300">
           <ScrollText className="w-4 h-4 text-red-400" />
@@ -61,7 +51,7 @@ export default function BattleLog({ logs = [] }) {
         </span>
       </div>
 
-      {/* Scrollable Feed Container */}
+      {/* Feed list container */}
       <div className="flex-1 overflow-y-auto space-y-2 pr-1.5 battle-log-scroll text-xs">
         {logs.length === 0 ? (
           <div className="h-full flex items-center justify-center text-zinc-500 italic text-center">

@@ -1,17 +1,7 @@
 import { SoundEngine } from "@/utils/audio";
 import { Heart, Zap, Shield, Swords, Sparkles } from "lucide-react";
 
-/**
- * ============================================================================
- * POKEMON CARD COMPONENT (Phase 17)
- * ============================================================================
- * Concepts:
- * - Component Reusability & Props Contract
- * - Glassmorphic styling with dynamic type-based glow accents
- * - Accessibility: aria-pressed, keyboard focus rings, semantic buttons
- */
-
-// Type badge color mappings
+// Pokemon type badge colors
 const TYPE_STYLES = {
   Electric: "bg-amber-500/20 text-amber-300 border-amber-500/40",
   Fire: "bg-orange-500/20 text-orange-300 border-orange-500/40",
@@ -57,7 +47,7 @@ export default function PokemonCard({
           : "glass-panel border-white/10 hover:border-white/30 hover:scale-[1.02] hover:shadow-xl"
       } focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black`}
     >
-      {/* Selection Badges */}
+      {/* Player Pick / CPU Selection badge */}
       {isSelected && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-red-600 text-white text-[11px] font-bold uppercase tracking-wider shadow-lg flex items-center gap-1 z-20">
           <Sparkles className="w-3 h-3" /> Player Pick
@@ -69,7 +59,7 @@ export default function PokemonCard({
         </div>
       )}
 
-      {/* Header Info: Name & Types */}
+      {/* Name and pokedex id header */}
       <div>
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-bebas text-3xl tracking-wide text-white">
@@ -80,7 +70,6 @@ export default function PokemonCard({
           </span>
         </div>
 
-        {/* Type Badges */}
         <div className="flex items-center gap-1.5 flex-wrap mb-4">
           {pokemon.types.map((type) => (
             <span
@@ -95,15 +84,13 @@ export default function PokemonCard({
         </div>
       </div>
 
-      {/* Center Sprite Stage */}
+      {/* Center animated sprite with accent radial glow */}
       <div className="relative h-32 flex items-center justify-center my-2 group">
-        {/* Ambient Radial Glow */}
         <div
           className="absolute inset-0 rounded-full blur-2xl opacity-25 group-hover:opacity-40 transition-opacity"
           style={{ backgroundColor: pokemon.accentColor || "#ef4444" }}
         />
         
-        {/* Animated Sprite */}
         <img
           src={pokemon.sprite}
           alt={pokemon.name}
@@ -112,14 +99,12 @@ export default function PokemonCard({
         />
       </div>
 
-      {/* Description Snippet */}
       <p className="text-zinc-400 text-xs line-clamp-2 my-2 min-h-[2rem]">
         {pokemon.description || "A battle-tested combatant ready for the arena."}
       </p>
 
-      {/* Stat Meters */}
+      {/* Base stats display */}
       <div className="space-y-1.5 pt-3 border-t border-white/10 text-xs">
-        {/* HP */}
         <div className="flex items-center justify-between text-zinc-300">
           <span className="flex items-center gap-1 text-emerald-400">
             <Heart className="w-3.5 h-3.5" /> HP
@@ -127,7 +112,6 @@ export default function PokemonCard({
           <span className="font-mono font-bold text-white">{pokemon.maxHp}</span>
         </div>
 
-        {/* Base Attack */}
         <div className="flex items-center justify-between text-zinc-300">
           <span className="flex items-center gap-1 text-red-400">
             <Swords className="w-3.5 h-3.5" /> Attack
@@ -135,7 +119,6 @@ export default function PokemonCard({
           <span className="font-mono font-bold text-white">{pokemon.baseDamage}</span>
         </div>
 
-        {/* Defense */}
         <div className="flex items-center justify-between text-zinc-300">
           <span className="flex items-center gap-1 text-blue-400">
             <Shield className="w-3.5 h-3.5" /> Defense
@@ -143,7 +126,6 @@ export default function PokemonCard({
           <span className="font-mono font-bold text-white">{pokemon.defense}</span>
         </div>
 
-        {/* Strong Move Cost */}
         <div className="flex items-center justify-between text-zinc-300">
           <span className="flex items-center gap-1 text-amber-400">
             <Zap className="w-3.5 h-3.5" /> {pokemon.moves.strong}
@@ -152,7 +134,6 @@ export default function PokemonCard({
         </div>
       </div>
 
-      {/* Action Button */}
       <button
         type="button"
         onClick={(e) => {

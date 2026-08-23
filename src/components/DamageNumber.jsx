@@ -1,16 +1,8 @@
-/**
- * ============================================================================
- * DAMAGE NUMBER COMPONENT (Phase 24)
- * ============================================================================
- * Concepts:
- * - Temporary UI element management with CSS keyframe animation
- * - Positioned absolutely over sprite canvas targets
- */
-
+// Floating RPG damage / energy popup numbers
 export default function DamageNumber({ event }) {
   if (!event) return null;
 
-  const { type, value, isCrit, isBlocked, isEnergy } = event;
+  const { value, isCrit, isBlocked, isEnergy } = event;
 
   const getStyle = () => {
     if (isEnergy) {

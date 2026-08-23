@@ -1,15 +1,6 @@
-import { Trophy, Skull, RotateCcw, ArrowRight, Flame, Swords } from "lucide-react";
+import { Trophy, Skull, RotateCcw, Swords, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SoundEngine } from "@/utils/audio";
-
-/**
- * ============================================================================
- * GAME OVER MODAL (Phase 26 & 27)
- * ============================================================================
- * Concepts:
- * - Mount/Unmount Animation Chaining
- * - LocalStorage Persistent Streak display & match recap metrics
- */
 
 export default function GameOverModal({
   isWinner,
@@ -36,14 +27,14 @@ export default function GameOverModal({
             : "bg-gradient-to-b from-red-950/40 via-zinc-950/90 to-zinc-950 border-red-500/40 shadow-[0_0_60px_rgba(239,68,68,0.25)]"
         }`}
       >
-        {/* Animated Radial Spotlight */}
+        {/* Background radial spotlight */}
         <div
           className={`absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full blur-3xl pointer-events-none ${
             isWinner ? "bg-amber-500/20" : "bg-red-500/20"
           }`}
         />
 
-        {/* Icon & Banner */}
+        {/* Victory / Defeat Header */}
         <div className="relative mb-6">
           <div
             className={`w-20 h-20 mx-auto rounded-3xl flex items-center justify-center shadow-2xl mb-4 ${
@@ -74,7 +65,7 @@ export default function GameOverModal({
           </p>
         </div>
 
-        {/* Match Breakdown Stats Grid */}
+        {/* Match statistics summary */}
         <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-black/40 border border-white/10 mb-8 text-xs">
           <div>
             <span className="text-zinc-400 uppercase font-semibold block mb-1">Turns</span>
@@ -94,7 +85,7 @@ export default function GameOverModal({
           </div>
         </div>
 
-        {/* Action Controls */}
+        {/* Rematch & New Opponent actions */}
         <div className="flex flex-col sm:flex-row items-center gap-3">
           <button
             onClick={handleRematch}

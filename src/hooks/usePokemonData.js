@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Pokemon from "@/classes/pokemon";
 
-// Sabhi playable Pokemon ka hardcoded base stats array
+// Hardcoded base stats config for all 6 playable Pokemon
 const POKEMON_CONFIGS = [
   {
     name: "Pikachu",
@@ -94,17 +94,16 @@ export function usePokemonData() {
     setIsError(false);
 
     try {
-      // Yahan Promise.all se saare Pokemon parallel fetch kar rahe hain taaki 1-by-1 wait na karna pade (like async thread pool in C++)
+      // parallel fetch all pokemon sprites from PokeAPI
       const requests = POKEMON_CONFIGS.map((cfg) =>
         axios
           .get(`https://pokeapi.co/api/v2/pokemon/${cfg.id}`, { timeout: 5000 })
-          .catch(() => null) // Kisi ek request me exception aaye to pure program ko crash mat hone do (try-catch safety)
+          .catch(() => null) // single failure se poora fetch fail mat hone do
       );
 
       const responses = await Promise.all(requests);
 
       const list = POKEMON_CONFIGS.map((cfg, index) => {
-        // OOP Pokemon class instantiate kar rahe hain (C++ me new Pokemon() jaise)
         const pokemon = new Pokemon(
           cfg.name,
           cfg.maxHp,
@@ -122,7 +121,7 @@ export function usePokemonData() {
 
         const apiRes = responses[index];
         if (apiRes && apiRes.data) {
-          // PokéAPI se Gen 5 animated GIF sprite extract kar rahe hain
+          // Gen 5 animated GIF sprite extract kar rahe hain
           pokemon.sprite =
             apiRes.data.sprites?.versions?.["generation-v"]?.["black-white"]
               ?.animated?.front_default ||
@@ -135,7 +134,7 @@ export function usePokemonData() {
             apiRes.data.sprites?.back_default ||
             pokemon.sprite;
         } else {
-          // Direct fallback URL agar PokéAPI rate limit ho jaye ya internet slow ho
+          // Direct fallback URL agar API slow ho ya rate limit hit ho
           pokemon.sprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${cfg.id}.gif`;
           pokemon.backSprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${cfg.id}.gif`;
         }
@@ -146,9 +145,9 @@ export function usePokemonData() {
       setRoster(list);
       setIsLoading(false);
     } catch (err) {
-      console.log("PokeAPI issue aaya, fallback local array use kar rahe hain:", err);
+      console.error("PokeAPI error, loading fallback list:", err);
 
-      // Offline fallback data taaki project fail na ho presentation ke time
+      // Offline fallback dataset
       const fallbackList = POKEMON_CONFIGS.map((cfg) => {
         const pokemon = new Pokemon(
           cfg.name,

@@ -1,14 +1,4 @@
-/**
- * ============================================================================
- * SYNTHETIC RETRO AUDIO ENGINE (Web Audio API)
- * ============================================================================
- * Architectural Decision:
- * Using Web Audio API oscillators instead of static audio files:
- * 1. Zero network latency or external asset download dependencies.
- * 2. 100% cross-platform compatibility without missing file 404 errors.
- * 3. Dynamic pitch/frequency modulation matching combat intensity.
- */
-
+// Synthetic 8-bit sound engine using Web Audio API oscillators (no external mp3 files needed)
 let audioCtx = null;
 
 function getAudioContext() {
@@ -26,7 +16,7 @@ function getAudioContext() {
 }
 
 export const SoundEngine = {
-  // Soft UI click
+  // Menu / UI button click
   playClick: () => {
     try {
       const ctx = getAudioContext();
@@ -42,12 +32,10 @@ export const SoundEngine = {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.05);
-    } catch {
-      // Audio playback silently guarded
-    }
+    } catch {}
   },
 
-  // Weak attack whoosh & impact
+  // Weak attack impact sound
   playWeakHit: () => {
     try {
       const ctx = getAudioContext();
@@ -66,12 +54,11 @@ export const SoundEngine = {
     } catch {}
   },
 
-  // Heavy blast / strong attack sound
+  // Strong attack blast / heavy explosion sound
   playStrongHit: () => {
     try {
       const ctx = getAudioContext();
       if (!ctx) return;
-      // Low rumble
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sawtooth";
@@ -86,7 +73,7 @@ export const SoundEngine = {
     } catch {}
   },
 
-  // Defensive shield buzz
+  // Defense shield buzz
   playDefend: () => {
     try {
       const ctx = getAudioContext();
@@ -105,7 +92,7 @@ export const SoundEngine = {
     } catch {}
   },
 
-  // Energy charge hum
+  // Energy charge sound
   playCharge: () => {
     try {
       const ctx = getAudioContext();
@@ -124,12 +111,12 @@ export const SoundEngine = {
     } catch {}
   },
 
-  // Victory fanfare
+  // Victory fanfare melody
   playVictory: () => {
     try {
       const ctx = getAudioContext();
       if (!ctx) return;
-      const notes = [261.63, 329.63, 392.0, 523.25]; // C4, E4, G4, C5
+      const notes = [261.63, 329.63, 392.0, 523.25];
       notes.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -145,7 +132,7 @@ export const SoundEngine = {
     } catch {}
   },
 
-  // Defeat tone
+  // Defeat jingle
   playDefeat: () => {
     try {
       const ctx = getAudioContext();

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-// Canvas background FX: Floating embers + procedural lightning bolts
+// Canvas background: 60fps ambient embers + procedural lightning flashes
 export default function BackgroundFX() {
   const canvasRef = useRef(null);
 
@@ -10,7 +10,7 @@ export default function BackgroundFX() {
     const ctx = canvas.getContext("2d");
     let animationFrameId;
 
-    // Window resize hone par canvas dimensions update karna (jaise viewport resize handle karte hain)
+    // Window resize handle karna
     const handleResize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -18,16 +18,16 @@ export default function BackgroundFX() {
     handleResize();
     window.addEventListener("resize", handleResize);
 
-    // 1. Particle System Setup: Screen size ke according dynamic particle count
+    // Particle system (floating embers)
     const particleCount = Math.min(70, Math.floor(window.innerWidth / 20));
     const particles = [];
 
     const particleColors = [
-      "rgba(239, 68, 68, 0.75)",   // Fire red
-      "rgba(249, 115, 22, 0.75)",  // Flame orange
-      "rgba(59, 130, 246, 0.75)",  // Electric blue
-      "rgba(168, 85, 247, 0.75)",  // Ghost purple
-      "rgba(250, 204, 21, 0.75)",  // Spark yellow
+      "rgba(239, 68, 68, 0.75)",
+      "rgba(249, 115, 22, 0.75)",
+      "rgba(59, 130, 246, 0.75)",
+      "rgba(168, 85, 247, 0.75)",
+      "rgba(250, 204, 21, 0.75)",
     ];
 
     for (let i = 0; i < particleCount; i++) {
@@ -36,20 +36,20 @@ export default function BackgroundFX() {
         y: Math.random() * canvas.height,
         radius: Math.random() * 2.2 + 0.8,
         vx: (Math.random() - 0.5) * 0.6,
-        vy: (Math.random() - 0.5) * 0.6 - 0.2, // Halka sa upar drift karega jaise fire embers
+        vy: (Math.random() - 0.5) * 0.6 - 0.2, // halka upward drift
         color: particleColors[Math.floor(Math.random() * particleColors.length)],
         pulse: Math.random() * Math.PI * 2,
         pulseSpeed: 0.02 + Math.random() * 0.03,
       });
     }
 
-    // 2. Procedural Lightning Setup (Constrained random recursive algorithm)
+    // Procedural lightning parameters
     let lightningTimer = 0;
-    let nextLightningTarget = 180 + Math.random() * 240; // 3 se 7 second ke beech ek baar lightning aayegi
+    let nextLightningTarget = 180 + Math.random() * 240;
     let activeLightningBolts = [];
     let flashIntensity = 0;
 
-    // Recursion se lightning ki branches draw kar rahe hain (C++ recursive tree traversal jaisa)
+    // Recursive lightning bolt generator
     const createLightningBolt = (startX, startY, endX, endY, branches = 3, depth = 0) => {
       const segments = [];
       let currentX = startX;
@@ -60,15 +60,13 @@ export default function BackgroundFX() {
         const progress = (i + 1) / totalSteps;
         const targetX = startX + (endX - startX) * progress;
         const targetY = startY + (endY - startY) * progress;
-
-        // Perpendicular random displacement taaki zigzag line bane
         const displacement = (Math.random() - 0.5) * 45;
         const nextX = targetX + displacement;
         const nextY = targetY + (Math.random() - 0.5) * 20;
 
         segments.push({ x1: currentX, y1: currentY, x2: nextX, y2: nextY });
 
-        // Branching recursion call
+        // random branches split
         if (branches > 0 && depth < 2 && Math.random() < 0.25 && i > 3 && i < totalSteps - 2) {
           const branchAngle = (Math.random() - 0.5) * 1.2;
           const branchLen = 80 + Math.random() * 100;
@@ -90,25 +88,23 @@ export default function BackgroundFX() {
       });
     };
 
-    // 3. Main 60 FPS Render Loop
+    // 60fps render loop
     const render = () => {
-      // Previous frame clear karo
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Agar lightning aayi to screen flash karo
       if (flashIntensity > 0) {
         ctx.fillStyle = `rgba(255, 255, 255, ${flashIntensity * 0.15})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         flashIntensity -= 0.05;
       }
 
-      // Particles draw & update
+      // Draw embers
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
         p.pulse += p.pulseSpeed;
 
-        // Screen wrap-around (agar particle screen se bahar gaya to dusri side se wapas lao)
+        // screen boundary wrap
         if (p.x < 0) p.x = canvas.width;
         if (p.x > canvas.width) p.x = 0;
         if (p.y < 0) p.y = canvas.height;
@@ -125,7 +121,7 @@ export default function BackgroundFX() {
         ctx.shadowBlur = 0;
       });
 
-      // Lightning trigger timer check
+      // Lightning timer check
       lightningTimer++;
       if (lightningTimer >= nextLightningTarget) {
         lightningTimer = 0;
@@ -138,7 +134,7 @@ export default function BackgroundFX() {
         flashIntensity = 1.0;
       }
 
-      // Active lightning bolts ko stroke karo aur alpha fade karo
+      // Draw active lightning bolts
       for (let b = activeLightningBolts.length - 1; b >= 0; b--) {
         const bolt = activeLightningBolts[b];
         ctx.save();
@@ -167,7 +163,6 @@ export default function BackgroundFX() {
 
     render();
 
-    // Cleanup function - C++ destructor jaisa memory release karta hai
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);

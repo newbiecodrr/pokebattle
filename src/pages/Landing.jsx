@@ -4,18 +4,10 @@ import { useGame } from "@/context/GameContext";
 import { SoundEngine } from "@/utils/audio";
 import { Swords, Zap, Shield, Cpu, Flame, Trophy, Play, ArrowRight, Sparkles } from "lucide-react";
 
-/**
- * ============================================================================
- * LANDING PAGE — HERO, STATS & COMBAT LAUNCHPAD (Phase 13)
- * ============================================================================
- * Mobile-optimized layout with fluid typography and smooth micro-animations.
- */
-
 export default function Landing() {
   const navigate = useNavigate();
   const { winStreak, bestStreak, totalBattles, soundEnabled } = useGame();
 
-  // Keyboard shortcut: Pressing 'Enter' or 'Space' from landing page initiates combat
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Enter" || e.code === "Space") {
@@ -36,14 +28,11 @@ export default function Landing() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-7rem)] py-4 sm:py-8">
-      
-      {/* Hero Badge */}
       <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] sm:text-xs font-semibold uppercase tracking-widest mb-4 sm:mb-6 animate-pulse">
         <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400" />
         Tactical Turn-Based Combat Engine
       </div>
 
-      {/* Main Title */}
       <h1 className="font-bebas text-5xl sm:text-7xl md:text-9xl text-center tracking-tight leading-none text-white drop-shadow-[0_10px_35px_rgba(239,68,68,0.35)]">
         POKÉ<span className="bg-gradient-to-r from-red-500 via-orange-400 to-amber-300 bg-clip-text text-transparent">BATTLE</span>
       </h1>
@@ -52,7 +41,6 @@ export default function Landing() {
         Command iconic Pokémon in high-stakes tactical combat powered by a pure ES6 OOP battle engine, real-time energy economy, and intelligent CPU heuristics.
       </p>
 
-      {/* CTA Button */}
       <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-8 sm:mb-12 w-full sm:w-auto px-4 sm:px-0">
         <Link
           to="/select"
@@ -65,7 +53,6 @@ export default function Landing() {
         </Link>
       </div>
 
-      {/* Persistent Stats Ribbon */}
       <div className="grid grid-cols-3 gap-2.5 sm:gap-6 w-full max-w-2xl mb-8 sm:mb-12 px-2 sm:px-0">
         <div className="glass-panel p-3 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center text-center">
           <div className="flex items-center gap-1 text-amber-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wider mb-0.5 sm:mb-1">
@@ -92,7 +79,6 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* Feature Highlights Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 w-full max-w-4xl px-2 sm:px-0">
         <div className="glass-panel p-4 sm:p-6 rounded-xl sm:rounded-2xl border-white/10 hover:border-red-500/30 transition-all group">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
