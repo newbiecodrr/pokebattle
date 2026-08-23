@@ -1,0 +1,266 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: 'Bebas Neue', sans-serif;
+  --font-sans: 'Outfit', 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Press Start 2P', monospace;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(0.08 0.01 260);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.12 0.02 260 / 0.85);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.12 0.02 260);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.65 0.24 25);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.20 0.02 260);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.18 0.02 260);
+  --muted-foreground: oklch(0.65 0.02 260);
+  --accent: oklch(0.25 0.03 260);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.60 0.25 25);
+  --border: oklch(1 0 0 / 0.12);
+  --input: oklch(1 0 0 / 0.15);
+  --ring: oklch(0.65 0.24 25 / 0.6);
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --card: rgba(18, 18, 23, 0.8);
+  --card-foreground: #f4f4f5;
+  --popover: #121217;
+  --popover-foreground: #f4f4f5;
+  --primary: #ef4444;
+  --primary-foreground: #ffffff;
+  --secondary: #1f1f28;
+  --secondary-foreground: #f4f4f5;
+  --muted: #1c1c24;
+  --muted-foreground: #a1a1aa;
+  --accent: #272733;
+  --accent-foreground: #f4f4f5;
+  --destructive: #dc2626;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: rgba(239, 68, 68, 0.5);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground overflow-x-hidden font-sans;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  h1, h2, h3, .font-bebas {
+    font-family: 'Bebas Neue', cursive, sans-serif;
+    letter-spacing: 0.05em;
+  }
+  .font-pixel {
+    font-family: 'Press Start 2P', monospace;
+  }
+}
+
+/* Glassmorphism & Cyber Retro Design Tokens */
+.glass-panel {
+  background: rgba(18, 18, 24, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+.glass-panel-glow {
+  background: rgba(24, 24, 32, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.glass-card-interactive {
+  background: rgba(20, 20, 28, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card-interactive:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+/* CRT Scanline & Film Grain Overlay */
+.crt-scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.35) 50%
+  ), 
+  linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 3px, 4px 100%;
+  pointer-events: none;
+}
+
+.crt-vignette {
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+}
+
+/* Battle Action Animations */
+@keyframes shakeAnimation {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  15% { transform: translate(-8px, 4px) rotate(-1deg); }
+  30% { transform: translate(7px, -5px) rotate(1.5deg); }
+  45% { transform: translate(-6px, -3px) rotate(-1deg); }
+  60% { transform: translate(5px, 3px) rotate(1deg); }
+  75% { transform: translate(-3px, 1px) rotate(-0.5deg); }
+  90% { transform: translate(2px, -1px) rotate(0deg); }
+}
+
+@keyframes hitFlashAnimation {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 0 transparent); }
+  25% { filter: brightness(3.5) contrast(1.5) drop-shadow(0 0 20px rgba(239, 68, 68, 0.9)); transform: scale(0.95); }
+  50% { filter: brightness(0.6) drop-shadow(0 0 10px rgba(239, 68, 68, 0.5)); transform: scale(1.05); }
+  75% { filter: brightness(1.8); }
+}
+
+@keyframes damageFloatAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.25);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-30px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.85);
+  }
+}
+
+@keyframes lungePlayer {
+  0% { transform: translate(0, 0) scale(1); }
+  35% { transform: translate(50px, -20px) scale(1.1); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes lungeCpu {
+  0% { transform: translate(0, 0) scale(1); }
+  35% { transform: translate(-50px, 20px) scale(1.1); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes faintAnimation {
+  0% { transform: translateY(0) scale(1); opacity: 1; filter: grayscale(0); }
+  40% { transform: translateY(-10px) scale(0.95); opacity: 0.8; filter: grayscale(0.5); }
+  100% { transform: translateY(40px) scale(0.7); opacity: 0; filter: grayscale(1) blur(4px); }
+}
+
+@keyframes idleBreathing {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-shake {
+  animation: shakeAnimation 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.animate-hit-flash {
+  animation: hitFlashAnimation 0.4s ease-in-out both;
+}
+
+.animate-damage-float {
+  animation: damageFloatAnimation 1s ease-out forwards;
+}
+
+.animate-lunge-player {
+  animation: lungePlayer 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.animate-lunge-cpu {
+  animation: lungeCpu 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.animate-faint {
+  animation: faintAnimation 1s ease-in forwards;
+}
+
+.animate-idle {
+  animation: idleBreathing 3s ease-in-out infinite;
+}
+
+/* Custom Scrollbar for Battle Log */
+.battle-log-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.battle-log-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.battle-log-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+}
+.battle-log-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
