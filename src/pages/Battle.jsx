@@ -7,7 +7,7 @@ import BattleLog from "@/components/BattleLog";
 import DamageNumber from "@/components/DamageNumber";
 import GameOverModal from "@/components/GameOverModal";
 import { SoundEngine } from "@/utils/audio";
-import { Swords, Zap, Shield, BatteryCharging, ArrowLeft, Bot, User, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 export default function Battle() {
   const navigate = useNavigate();
@@ -103,7 +103,7 @@ export default function Battle() {
         {
           turn: 1,
           isPlayer: true,
-          message: `⚔️ Battle started: ${pClone.name} vs ${cClone.name}! Choose your move.`,
+          message: `Battle started: ${pClone.name} vs ${cClone.name}! Choose your move.`,
         },
       ]);
     }
@@ -347,13 +347,14 @@ export default function Battle() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [turn, isGameOver, playerEnergy]);
 
   if (!playerRef.current || !cpuRef.current) {
     return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center">
-        <Loader2 className="w-10 h-10 text-red-500 animate-spin mb-3" />
-        <p className="font-bebas text-xl text-zinc-300">STAGING ARENA...</p>
+      <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-8 h-8 text-[#E8382A] animate-spin" />
+        <p className="font-bebas text-2xl tracking-[0.14em] text-[#F2EFE6]">Staging arena…</p>
       </div>
     );
   }
@@ -361,256 +362,183 @@ export default function Battle() {
   const playerObj = playerRef.current;
   const cpuObj = cpuRef.current;
   const canUseStrong = playerEnergy >= playerObj.strongCost && turn === "player" && !isGameOver;
+  const playerTurn = turn === "player" && !isGameOver;
+
+  const moveBtn = (active, hoverBorder) =>
+    `text-left border-2 p-3 sm:p-4 flex flex-col justify-between gap-2 transition-all duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
+      active
+        ? `bg-[#131315] border-[#26262b] ${hoverBorder} hover:-translate-y-0.5 shadow-[3px_3px_0_#000]`
+        : "bg-[#101012] border-[#1c1c1f] opacity-40 pointer-events-none"
+    } active:translate-x-[2px] active:translate-y-[2px] active:shadow-none`;
 
   return (
-    <div className={`py-1 sm:py-4 max-w-6xl mx-auto flex flex-col min-h-[calc(100vh-6.5rem)] justify-between ${screenShake ? "animate-shake" : ""}`}>
-      
-      {/* Arena header: return button + turn status indicator */}
-      <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/10 mb-3">
+    <div className={`max-w-6xl mx-auto w-full flex flex-col pb-8 ${screenShake ? "animate-shake" : ""}`}>
+      {/* Arena header */}
+      <div className="flex items-center justify-between gap-2 py-3 border-b-2 border-[#26262b] pb-enter">
         <button
           onClick={() => navigate("/select")}
-          className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl glass-panel text-zinc-300 hover:text-white text-[11px] sm:text-xs font-semibold uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer shrink-0"
+          className="arcade-btn arcade-btn-ghost px-3 py-1.5 text-base"
         >
-          <ArrowLeft className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Change </span>Roster
+          <ArrowLeft className="w-4 h-4" strokeWidth={2.75} /> Roster
         </button>
 
-        <div className="flex items-center gap-1 sm:gap-2">
-          {turn === "player" ? (
-            <div className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[11px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 animate-pulse">
-              <User className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> <span>Your Turn</span>
+        {playerTurn ? (
+          <span className="hud-tag hud-tag-red !text-xs !px-3 !py-1.5">
+            <span className="w-2 h-2 bg-white pb-blink inline-block" /> Your move
+          </span>
+        ) : (
+          <span className="hud-tag hud-tag-yellow !text-xs !px-3 !py-1.5">
+            <span className="w-2 h-2 bg-black pb-blink inline-block" /> CPU thinking
+          </span>
+        )}
+
+        <span className="font-bebas text-xl tracking-[0.12em] text-[#F2EFE6]">
+          Turn <span className="text-[#E8382A]">{String(turnCount).padStart(2, "0")}</span>
+        </span>
+      </div>
+
+      {/* Fighter HUDs */}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 mt-4 items-stretch">
+        {/* YOU */}
+        <div className="border-2 border-black shadow-[4px_4px_0_#000] pb-enter-left">
+          <div className="bg-[#E8382A] px-3 py-1.5 flex items-center justify-between border-b-2 border-black">
+            <span className="font-bebas text-xl tracking-[0.14em] text-white">You — {playerObj.name}</span>
+            <span className="text-[10px] font-extrabold tracking-[0.2em] text-white/85 uppercase">{(playerObj.types || []).join(" / ")}</span>
+          </div>
+          <div className="bg-[#131315] p-3 sm:p-4 space-y-2.5">
+            <StatBar label="HP" current={playerHp} max={playerObj.maxHp} type="hp" isDefending={playerDefending} />
+            <StatBar label="Energy" current={playerEnergy} max={playerObj.maxEnergy} type="energy" />
+            <div className="relative h-32 sm:h-44 flex items-center justify-center bg-[#0A0A0B] border-2 border-[#26262b] overflow-hidden">
+              <DamageNumber event={playerDamageEvent} />
+              <span className="absolute top-1 left-1.5 text-[10px] font-mono text-[#8F8F96]">P1</span>
+              <span className="absolute bottom-2 w-28 sm:w-36 h-[3px] bg-[#26262b]" />
+              <img
+                src={playerObj.sprite}
+                alt={playerObj.name}
+                className={`relative max-h-28 sm:max-h-36 object-contain scale-x-[-1] ${
+                  playerLunge ? "animate-lunge-player" : ""
+                } ${playerHit ? "animate-hit-player" : ""} ${
+                  playerFaint ? "animate-faint-player" : "animate-idle-player"
+                }`}
+              />
             </div>
-          ) : (
-            <div className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[11px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-amber-500/20 animate-pulse">
-              <Bot className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-spin" /> CPU Thinking...
-            </div>
-          )}
+          </div>
         </div>
 
-        <div className="text-[11px] sm:text-xs font-mono text-zinc-400 shrink-0">
-          TURN <strong className="text-white text-xs sm:text-sm">{turnCount}</strong>
+        {/* VS divider */}
+        <div className="hidden md:flex flex-col items-center justify-center gap-2 px-1">
+          <span className="font-bebas text-5xl italic text-[#F2EFE6]">VS</span>
+          <span className="w-[2px] flex-1 bg-[#26262b] min-h-10" />
+          <span className="text-[10px] font-mono text-[#8F8F96]">BO1</span>
+        </div>
+        <div className="md:hidden flex items-center gap-3 justify-center py-1">
+          <span className="h-[2px] flex-1 bg-[#26262b]" />
+          <span className="font-bebas text-3xl italic text-[#F2EFE6]">VS</span>
+          <span className="h-[2px] flex-1 bg-[#26262b]" />
+        </div>
+
+        {/* CPU */}
+        <div className="border-2 border-black shadow-[4px_4px_0_#000] pb-enter-right">
+          <div className="bg-[#2E7CF6] px-3 py-1.5 flex items-center justify-between border-b-2 border-black">
+            <span className="font-bebas text-xl tracking-[0.14em] text-white">CPU — {cpuObj.name}</span>
+            <span className="text-[10px] font-extrabold tracking-[0.2em] text-white/85 uppercase">{(cpuObj.types || []).join(" / ")}</span>
+          </div>
+          <div className="bg-[#131315] p-3 sm:p-4 space-y-2.5">
+            <StatBar label="HP" current={cpuHp} max={cpuObj.maxHp} type="hp" isDefending={cpuDefending} />
+            <StatBar label="Energy" current={cpuEnergy} max={cpuObj.maxEnergy} type="energy" />
+            <div className="relative h-32 sm:h-44 flex items-center justify-center bg-[#0A0A0B] border-2 border-[#26262b] overflow-hidden">
+              <DamageNumber event={cpuDamageEvent} />
+              <span className="absolute top-1 right-1.5 text-[10px] font-mono text-[#8F8F96]">CPU</span>
+              <span className="absolute bottom-2 w-28 sm:w-36 h-[3px] bg-[#26262b]" />
+              <img
+                src={cpuObj.sprite}
+                alt={cpuObj.name}
+                className={`relative max-h-28 sm:max-h-36 object-contain ${
+                  cpuLunge ? "animate-lunge-cpu" : ""
+                } ${cpuHit ? "animate-hit-flash" : ""} ${
+                  cpuFaint ? "animate-faint" : "animate-idle"
+                }`}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Main combat pods layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 lg:gap-8 my-auto items-center">
-        
-        {/* Player Side (Left Pod) */}
-        <div className="glass-panel p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden border border-white/15 flex flex-col justify-between">
-          <div
-            className="absolute -top-10 -left-10 w-36 sm:w-48 h-36 sm:h-48 rounded-full blur-3xl opacity-25"
-            style={{ backgroundColor: playerObj.accentColor || "#ef4444" }}
-          />
-
-          <div className="space-y-2 z-10 mb-2 sm:mb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[9px] sm:text-[10px] uppercase font-bold text-red-400 tracking-wider">YOU</span>
-                <h3 className="font-bebas text-2xl sm:text-3xl text-white tracking-wide leading-tight">
-                  {playerObj.name}
-                </h3>
-              </div>
-              <div className="flex items-center gap-1">
-                {playerObj.types.map((t) => (
-                  <span key={t} className="text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-zinc-300 border border-white/10">
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <StatBar
-              label="HP"
-              current={playerHp}
-              max={playerObj.maxHp}
-              type="hp"
-              isDefending={playerDefending}
-            />
-
-            <StatBar
-              label="Energy"
-              current={playerEnergy}
-              max={playerObj.maxEnergy}
-              type="energy"
-            />
-          </div>
-
-          <div className="relative h-28 sm:h-44 flex items-center justify-center">
-            <DamageNumber event={playerDamageEvent} />
-            <div className="absolute bottom-1 w-28 sm:w-36 h-6 bg-black/50 rounded-full blur-md" />
-            <img
-              src={playerObj.sprite}
-              alt={playerObj.name}
-              className={`relative max-h-24 sm:max-h-36 object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.7)] transition-transform ${
-                playerLunge ? "animate-lunge-player" : ""
-              } ${playerHit ? "animate-hit-player" : ""} ${
-                playerFaint ? "animate-faint-player" : "animate-idle-player"
-              }`}
-            />
-          </div>
-        </div>
-
-        {/* CPU Side (Right Pod) */}
-        <div className="glass-panel p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl relative overflow-hidden border border-white/15 flex flex-col justify-between">
-          <div
-            className="absolute -top-10 -right-10 w-36 sm:w-48 h-36 sm:h-48 rounded-full blur-3xl opacity-25"
-            style={{ backgroundColor: cpuObj.accentColor || "#3b82f6" }}
-          />
-
-          <div className="space-y-2 z-10 mb-2 sm:mb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[9px] sm:text-[10px] uppercase font-bold text-blue-400 tracking-wider">CPU</span>
-                <h3 className="font-bebas text-2xl sm:text-3xl text-white tracking-wide leading-tight">
-                  {cpuObj.name}
-                </h3>
-              </div>
-              <div className="flex items-center gap-1">
-                {cpuObj.types.map((t) => (
-                  <span key={t} className="text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-zinc-300 border border-white/10">
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <StatBar
-              label="HP"
-              current={cpuHp}
-              max={cpuObj.maxHp}
-              type="hp"
-              isDefending={cpuDefending}
-            />
-
-            <StatBar
-              label="Energy"
-              current={cpuEnergy}
-              max={cpuObj.maxEnergy}
-              type="energy"
-            />
-          </div>
-
-          <div className="relative h-28 sm:h-44 flex items-center justify-center">
-            <DamageNumber event={cpuDamageEvent} />
-            <div className="absolute bottom-1 w-28 sm:w-36 h-6 bg-black/50 rounded-full blur-md" />
-            <img
-              src={cpuObj.sprite}
-              alt={cpuObj.name}
-              className={`relative max-h-24 sm:max-h-36 object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.7)] transition-transform ${
-                cpuLunge ? "animate-lunge-cpu" : ""
-              } ${cpuHit ? "animate-hit-flash" : ""} ${
-                cpuFaint ? "animate-faint" : "animate-idle"
-              }`}
-            />
-          </div>
-        </div>
-
-      </div>
-
-      {/* 4 Action Command Buttons + Live Event Battle Feed */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-5 mt-3 sm:mt-5">
-        
-        <div className="lg:col-span-7 grid grid-cols-2 gap-2 sm:gap-3">
-          
-          {/* Move 1: Weak Strike */}
+      {/* Moves + feed */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mt-4">
+        <div className="lg:col-span-7 grid grid-cols-2 gap-2.5 pb-enter pb-d2">
           <button
             type="button"
-            disabled={turn !== "player" || isGameOver}
+            disabled={!playerTurn}
             onClick={() => handlePlayerAction("weak")}
-            aria-label={`Execute Weak Attack: ${playerObj.moves.weak}`}
-            className="glass-card-interactive p-3 sm:p-4 rounded-xl sm:rounded-2xl text-left border-white/10 hover:border-red-500/50 disabled:opacity-40 disabled:pointer-events-none cursor-pointer group flex flex-col justify-between"
+            aria-label={`Weak attack ${playerObj.moves.weak}`}
+            className={moveBtn(playerTurn, "hover:border-[#E8382A]")}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-red-500/20 text-red-400 flex items-center justify-center font-mono text-[10px] sm:text-xs font-bold">
-                1
-              </span>
-              <span className="text-[10px] sm:text-[11px] font-mono text-emerald-400 font-semibold">+5 EN</span>
-            </div>
-            <div>
-              <h4 className="font-bebas text-lg sm:text-2xl text-white tracking-wide group-hover:text-red-400 transition-colors leading-tight">
-                {playerObj.moves.weak}
-              </h4>
-              <p className="text-zinc-400 text-[11px] sm:text-xs mt-0.5 line-clamp-1">Quick strike.</p>
-            </div>
+            <span className="flex items-center justify-between">
+              <span className="w-6 h-6 bg-[#E8382A] text-white flex items-center justify-center font-mono text-xs font-bold border border-black">1</span>
+              <span className="text-[11px] font-mono text-[#2FBF5A] font-bold">+5 EN</span>
+            </span>
+            <span>
+              <span className="font-bebas text-xl sm:text-2xl text-[#F2EFE6] leading-none block uppercase">{playerObj.moves.weak}</span>
+              <span className="text-[#8F8F96] text-[11px]">Quick strike. No cost.</span>
+            </span>
           </button>
 
-          {/* Move 2: Heavy Blast */}
           <button
             type="button"
             disabled={!canUseStrong}
             onClick={() => handlePlayerAction("strong")}
-            aria-label={`Execute Strong Attack: ${playerObj.moves.strong} - Costs ${playerObj.strongCost} Energy`}
-            className={`glass-card-interactive p-3 sm:p-4 rounded-xl sm:rounded-2xl text-left border-white/10 disabled:opacity-35 disabled:pointer-events-none cursor-pointer group flex flex-col justify-between ${
-              canUseStrong
-                ? "hover:border-amber-500/50 hover:bg-amber-950/20 shadow-[0_0_20px_rgba(245,158,11,0.15)]"
-                : ""
-            }`}
+            aria-label={`Strong attack ${playerObj.moves.strong}, costs ${playerObj.strongCost} energy`}
+            className={moveBtn(canUseStrong, "hover:border-[#FFC93C]")}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-amber-500/20 text-amber-400 flex items-center justify-center font-mono text-[10px] sm:text-xs font-bold">
-                2
-              </span>
-              <span className="text-[10px] sm:text-[11px] font-mono text-amber-400 font-semibold">
-                -{playerObj.strongCost} EN
-              </span>
-            </div>
-            <div>
-              <h4 className="font-bebas text-lg sm:text-2xl text-white tracking-wide group-hover:text-amber-300 transition-colors leading-tight">
-                {playerObj.moves.strong}
-              </h4>
-              <p className="text-zinc-400 text-[11px] sm:text-xs mt-0.5 line-clamp-1">Heavy special blast.</p>
-            </div>
+            <span className="flex items-center justify-between">
+              <span className="w-6 h-6 bg-[#FFC93C] text-black flex items-center justify-center font-mono text-xs font-bold border border-black">2</span>
+              <span className="text-[11px] font-mono text-[#FFC93C] font-bold">-{playerObj.strongCost} EN</span>
+            </span>
+            <span>
+              <span className="font-bebas text-xl sm:text-2xl text-[#F2EFE6] leading-none block uppercase">{playerObj.moves.strong}</span>
+              <span className="text-[#8F8F96] text-[11px]">Heavy blast. Big damage.</span>
+            </span>
           </button>
 
-          {/* Move 3: Defensive Guard */}
           <button
             type="button"
-            disabled={turn !== "player" || isGameOver}
+            disabled={!playerTurn}
             onClick={() => handlePlayerAction("defend")}
-            aria-label="Enter Defensive Stance"
-            className="glass-card-interactive p-3 sm:p-4 rounded-xl sm:rounded-2xl text-left border-white/10 hover:border-blue-500/50 disabled:opacity-40 disabled:pointer-events-none cursor-pointer group flex flex-col justify-between"
+            aria-label="Guard"
+            className={moveBtn(playerTurn, "hover:border-[#2E7CF6]")}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center font-mono text-[10px] sm:text-xs font-bold">
-                3
-              </span>
-              <span className="text-[10px] sm:text-[11px] font-mono text-cyan-400 font-semibold">+12 EN</span>
-            </div>
-            <div>
-              <h4 className="font-bebas text-lg sm:text-2xl text-white tracking-wide group-hover:text-blue-400 transition-colors flex items-center gap-1 leading-tight">
-                <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> GUARD
-              </h4>
-              <p className="text-zinc-400 text-[11px] sm:text-xs mt-0.5 line-clamp-1">50% DMG cut.</p>
-            </div>
+            <span className="flex items-center justify-between">
+              <span className="w-6 h-6 bg-[#2E7CF6] text-white flex items-center justify-center font-mono text-xs font-bold border border-black">3</span>
+              <span className="text-[11px] font-mono text-[#2E7CF6] font-bold">+12 EN</span>
+            </span>
+            <span>
+              <span className="font-bebas text-xl sm:text-2xl text-[#F2EFE6] leading-none block">Guard</span>
+              <span className="text-[#8F8F96] text-[11px]">Halve next hit.</span>
+            </span>
           </button>
 
-          {/* Move 4: Energy Charge */}
           <button
             type="button"
-            disabled={turn !== "player" || isGameOver}
+            disabled={!playerTurn}
             onClick={() => handlePlayerAction("charge")}
-            aria-label="Charge Stamina Energy"
-            className="glass-card-interactive p-3 sm:p-4 rounded-xl sm:rounded-2xl text-left border-white/10 hover:border-cyan-500/50 disabled:opacity-40 disabled:pointer-events-none cursor-pointer group flex flex-col justify-between"
+            aria-label="Charge energy"
+            className={moveBtn(playerTurn, "hover:border-[#2FBF5A]")}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-mono text-[10px] sm:text-xs font-bold">
-                4
-              </span>
-              <span className="text-[10px] sm:text-[11px] font-mono text-cyan-400 font-semibold">+25 EN</span>
-            </div>
-            <div>
-              <h4 className="font-bebas text-lg sm:text-2xl text-white tracking-wide group-hover:text-cyan-400 transition-colors flex items-center gap-1 leading-tight">
-                <BatteryCharging className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> CHARGE
-              </h4>
-              <p className="text-zinc-400 text-[11px] sm:text-xs mt-0.5 line-clamp-1">Restore stamina.</p>
-            </div>
+            <span className="flex items-center justify-between">
+              <span className="w-6 h-6 bg-[#F2EFE6] text-black flex items-center justify-center font-mono text-xs font-bold border border-black">4</span>
+              <span className="text-[11px] font-mono text-[#2FBF5A] font-bold">+25 EN</span>
+            </span>
+            <span>
+              <span className="font-bebas text-xl sm:text-2xl text-[#F2EFE6] leading-none block">Charge</span>
+              <span className="text-[#8F8F96] text-[11px]">Bank energy. Open guard.</span>
+            </span>
           </button>
-
         </div>
 
-        <div className="lg:col-span-5">
+        <div className="lg:col-span-5 pb-enter pb-d3">
           <BattleLog logs={battleLogs} />
         </div>
-
       </div>
 
       {isGameOver && (
@@ -626,7 +554,6 @@ export default function Battle() {
           soundEnabled={soundEnabled}
         />
       )}
-
     </div>
   );
 }
